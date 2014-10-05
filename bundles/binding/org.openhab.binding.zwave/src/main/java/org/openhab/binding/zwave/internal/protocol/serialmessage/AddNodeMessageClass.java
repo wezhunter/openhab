@@ -39,9 +39,10 @@ public class AddNodeMessageClass extends ZWaveCommandProcessor {
 	
 	private final int OPTION_HIGH_POWER                  = 0x80;
 
-	public SerialMessage doRequestStart(boolean highPower) {
+	public SerialMessage doRequestStart(ZWaveController zController, boolean highPower) {
 		logger.debug("Setting controller into INCLUSION mode.");
-
+		zController.notifyEventListeners(new ZWaveInclusionEvent(ZWaveInclusionEvent.Type.IncludeBegin));
+		
 		// Queue the request
 		SerialMessage newMessage = new SerialMessage(SerialMessage.SerialMessageClass.AddNodeToNetwork, SerialMessage.SerialMessageType.Request,
 				SerialMessage.SerialMessageClass.AddNodeToNetwork, SerialMessage.SerialMessagePriority.High);
@@ -53,9 +54,10 @@ public class AddNodeMessageClass extends ZWaveCommandProcessor {
     	return newMessage;
     }
 
-	public SerialMessage doRequestStop() {
+	public SerialMessage doRequestStop(ZWaveController zController) {
 		logger.debug("Ending INCLUSION mode.");
-
+		zController.notifyEventListeners(new ZWaveInclusionEvent(ZWaveInclusionEvent.Type.IncludeEnd));
+		
 		// Queue the request
 		SerialMessage newMessage = new SerialMessage(SerialMessage.SerialMessageClass.AddNodeToNetwork, SerialMessage.SerialMessageType.Request,
 				SerialMessage.SerialMessageClass.AddNodeToNetwork, SerialMessage.SerialMessagePriority.High);
@@ -74,6 +76,7 @@ public class AddNodeMessageClass extends ZWaveCommandProcessor {
 			break;
 		case ADD_NODE_STATUS_NODE_FOUND:
 			logger.debug("New node found.");
+			zController.notifyEventListeners(new ZWaveInclusionEvent(ZWaveInclusionEvent.Type.IncludeNodeFound));
 			break;
 		case ADD_NODE_STATUS_ADDING_SLAVE:
 			logger.debug("NODE {}: Adding slave.", incomingMessage.getMessagePayloadByte(2));
@@ -88,14 +91,16 @@ public class AddNodeMessageClass extends ZWaveCommandProcessor {
 			break;
 		case ADD_NODE_STATUS_DONE:
 			logger.debug("Done.");
-			zController.sendData(doRequestStop());
+			// Do not send a doRequestStop to the controller here as it will fire twice as the new event system manages the stopping now.
+			// Also the Controller shouldn't stop listening once a single new node has been added
+			//zController.sendData(doRequestStop(zController));
 			// If the node ID is 0, ignore!
 			if(incomingMessage.getMessagePayloadByte(2) != 0)
 				zController.notifyEventListeners(new ZWaveInclusionEvent(ZWaveInclusionEvent.Type.IncludeDone, incomingMessage.getMessagePayloadByte(2)));
 			break;
 		case ADD_NODE_STATUS_FAILED:
 			logger.debug("Failed.");
-			zController.sendData(doRequestStop());
+			zController.sendData(doRequestStop(zController));
 			zController.notifyEventListeners(new ZWaveInclusionEvent(ZWaveInclusionEvent.Type.IncludeFail));
 			break;
 		default:

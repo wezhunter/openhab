@@ -87,7 +87,8 @@ public final class ZWaveNetworkMonitor implements ZWaveEventListener {
 
 	private boolean doSoftReset = false;
 	private boolean initialised = false;
-
+	private boolean healrunning = false;
+	
     private DateFormat df;
 
 	Map<Integer, HealNode> healNodes = new HashMap<Integer, HealNode>();
@@ -270,7 +271,7 @@ public final class ZWaveNetworkMonitor implements ZWaveEventListener {
 			logger.debug("HEAL - Performing soft reset!");
 			zController.requestSoftReset();
 		}
-
+		healrunning = true;
 		return true;
 	}
 
@@ -358,6 +359,7 @@ public final class ZWaveNetworkMonitor implements ZWaveEventListener {
 
 		// There's nothing more to do
 		networkHealNextTime = networkHealNightlyTime;
+		healrunning = false;
 	}
 
 	/**
@@ -643,6 +645,14 @@ public final class ZWaveNetworkMonitor implements ZWaveEventListener {
 			// Set the next PING time
 			pingNodeTime = System.currentTimeMillis() + PING_PERIOD;
 		}
+	}
+	
+	/**
+	 * Indicates if a network wide Heal is currently running
+	 * @return isHealRunning;
+	 */
+	public boolean isHealRunning() {
+		return healrunning;
 	}
 
 	class HealNode {

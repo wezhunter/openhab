@@ -34,9 +34,10 @@ public class RemoveNodeMessageClass extends ZWaveCommandProcessor {
 	private final int REMOVE_NODE_STATUS_DONE                = 0x06;
 	private final int REMOVE_NODE_STATUS_FAILED              = 0x07;
 	
-	public SerialMessage doRequestStart(boolean highPower) {
+	public SerialMessage doRequestStart(ZWaveController zController, boolean highPower) {
 		logger.debug("Setting controller into EXCLUSION mode.");
-
+		zController.notifyEventListeners(new ZWaveInclusionEvent(ZWaveInclusionEvent.Type.ExcludeBegin));
+		
 		// Queue the request
 		SerialMessage newMessage = new SerialMessage(SerialMessage.SerialMessageClass.RemoveNodeFromNetwork, SerialMessage.SerialMessageType.Request,
 				SerialMessage.SerialMessageClass.RemoveNodeFromNetwork, SerialMessage.SerialMessagePriority.High);
@@ -46,8 +47,9 @@ public class RemoveNodeMessageClass extends ZWaveCommandProcessor {
     	return newMessage;
     }
 
-	public SerialMessage doRequestStop() {
+	public SerialMessage doRequestStop(ZWaveController zController) {
 		logger.debug("Ending EXCLUSION mode.");
+		zController.notifyEventListeners(new ZWaveInclusionEvent(ZWaveInclusionEvent.Type.ExcludeEnd));
 
 		// Queue the request
 		SerialMessage newMessage = new SerialMessage(SerialMessage.SerialMessageClass.RemoveNodeFromNetwork, SerialMessage.SerialMessageType.Request,
@@ -67,6 +69,7 @@ public class RemoveNodeMessageClass extends ZWaveCommandProcessor {
 			break;
 		case REMOVE_NODE_STATUS_NODE_FOUND:
 			logger.debug("Node found for removal.");
+			zController.notifyEventListeners(new ZWaveInclusionEvent(ZWaveInclusionEvent.Type.ExcludeNodeFound));
 			break;
 		case REMOVE_NODE_STATUS_REMOVING_SLAVE:
 			logger.debug("NODE {}: Removing slave.", incomingMessage.getMessagePayloadByte(2));
@@ -78,12 +81,14 @@ public class RemoveNodeMessageClass extends ZWaveCommandProcessor {
 			break;
 		case REMOVE_NODE_STATUS_DONE:
 			logger.debug("NODE {}: Removed from network.", incomingMessage.getMessagePayloadByte(2));
-			zController.sendData(doRequestStop());
+			// Do not send a doRequestStop to the controller here as it will fire twice as the new event system manages the stopping now.
+			// Also the Controller shouldn't stop listening once a single new node has been added
+			//zController.sendData(doRequestStop(zController));
 			zController.notifyEventListeners(new ZWaveInclusionEvent(ZWaveInclusionEvent.Type.ExcludeDone, incomingMessage.getMessagePayloadByte(2)));
 			break;
 		case REMOVE_NODE_STATUS_FAILED:
 			logger.debug("Failed.");
-			zController.sendData(doRequestStop());
+			zController.sendData(doRequestStop(zController));
 			zController.notifyEventListeners(new ZWaveInclusionEvent(ZWaveInclusionEvent.Type.ExcludeFail));
 			break;
 		default:
