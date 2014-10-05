@@ -38,15 +38,21 @@ public class ZWaveInclusionEvent extends ZWaveEvent {
 	}
 
 	public enum Type {
+		IncludeBegin,
 		IncludeStart,
+		IncludeNodeFound,
 		IncludeSlaveFound,
 		IncludeControllerFound,
 		IncludeFail,
 		IncludeDone,
+		IncludeEnd,
+		ExcludeBegin,
 		ExcludeStart,
+		ExcludeNodeFound,
 		ExcludeSlaveFound,
 		ExcludeControllerFound,
 		ExcludeFail,
 		ExcludeDone,
+		ExcludeEnd,
 	}
 }

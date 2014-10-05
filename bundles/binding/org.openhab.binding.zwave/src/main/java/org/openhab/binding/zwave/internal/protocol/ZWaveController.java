@@ -611,9 +611,9 @@ public class ZWaveController {
 	/**
 	 * Puts the controller into inclusion mode to add new nodes
 	 */
-	public void requestAddNodesStart()
+	public void requestAddNodesStart(boolean highPower)
 	{
-		this.enqueue(new AddNodeMessageClass().doRequestStart(true));
+		this.enqueue(new AddNodeMessageClass().doRequestStart(this,highPower));
 	}
 
 	/**
@@ -621,15 +621,15 @@ public class ZWaveController {
 	 */
 	public void requestAddNodesStop()
 	{
-		this.enqueue(new AddNodeMessageClass().doRequestStop());
+		this.enqueue(new AddNodeMessageClass().doRequestStop(this));
 	}
 
 	/**
 	 * Puts the controller into exclusion mode to remove new nodes
 	 */
-	public void requestRemoveNodesStart()
+	public void requestRemoveNodesStart(boolean highPower)
 	{
-		this.enqueue(new RemoveNodeMessageClass().doRequestStart(true));
+		this.enqueue(new RemoveNodeMessageClass().doRequestStart(this,highPower));
 	}
 
 	/**
@@ -637,7 +637,7 @@ public class ZWaveController {
 	 */
 	public void requestRemoveNodesStop()
 	{
-		this.enqueue(new RemoveNodeMessageClass().doRequestStop());
+		this.enqueue(new RemoveNodeMessageClass().doRequestStop(this));
 	}
 
 	/**
@@ -860,7 +860,16 @@ public class ZWaveController {
 	 * @return isConnected;
 	 */
 	public boolean isConnected() {
-		return isConnected && initializationComplete;
+		return isConnected;
+	}
+	
+	/**
+	 * Indicates if the
+	 * Z-Wave initialization is complete
+	 * @return isReady;
+	 */
+	public boolean isReady() {
+		return initializationComplete;
 	}
 	
 	/**
