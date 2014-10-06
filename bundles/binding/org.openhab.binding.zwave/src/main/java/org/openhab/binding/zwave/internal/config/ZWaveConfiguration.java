@@ -351,10 +351,11 @@ public class ZWaveConfiguration implements OpenHABConfigurationService, ZWaveEve
 						record.state = OpenHABConfigurationRecord.STATE.WARNING;
 					else
 					record.state = OpenHABConfigurationRecord.STATE.OK;
+					canDelete = false;
 					break;
 				default:
 					record.state = OpenHABConfigurationRecord.STATE.INITIALIZING;
-					canDelete = true;
+					canDelete = false;
 					break;
 				}
 
@@ -926,15 +927,17 @@ public class ZWaveConfiguration implements OpenHABConfigurationService, ZWaveEve
 
 				if (action.equals("Delete")) {
 					logger.debug("NODE {}: Delete node", nodeId);
+					this.zController.requestIsFailedNode(nodeId);
 					this.zController.requestRemoveFailedNode(nodeId);
+					
 
 					// Delete the XML file.
 					// TODO: This should be possibly be done after registering
 					// an event handler
 					// Then we can delete this after the controller confirms the
 					// removal.
-					ZWaveNodeSerializer nodeSerializer = new ZWaveNodeSerializer();
-					nodeSerializer.DeleteNode(nodeId);
+					//ZWaveNodeSerializer nodeSerializer = new ZWaveNodeSerializer();
+					//nodeSerializer.DeleteNode(nodeId);
 				}
 
 				// This is temporary
