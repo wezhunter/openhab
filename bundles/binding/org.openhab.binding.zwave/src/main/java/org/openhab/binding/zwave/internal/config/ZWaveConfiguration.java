@@ -18,7 +18,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.openhab.binding.zwave.internal.ZWaveNetworkMonitor;
-import org.openhab.binding.zwave.internal.config.OpenHABInclusionMessage.MESSAGESTATE;
+import org.openhab.binding.zwave.internal.config.OpenHABConfigurationRecord.STATE;
 import org.openhab.binding.zwave.internal.protocol.ConfigurationParameter;
 import org.openhab.binding.zwave.internal.protocol.ZWaveController;
 import org.openhab.binding.zwave.internal.protocol.ZWaveDeviceClass;
@@ -106,9 +106,7 @@ public class ZWaveConfiguration implements OpenHABConfigurationService, ZWaveEve
 
 		List<OpenHABConfigurationRecord> records = new ArrayList<OpenHABConfigurationRecord>();
 		OpenHABConfigurationRecord record;
-		
-		List<OpenHABConfigurationRecord> messages = new ArrayList<OpenHABConfigurationRecord>();
-		OpenHABInclusionMessage message;
+
 //		ZWaveNode node;
 
 		if (domain.equals("status/")) {
@@ -146,36 +144,36 @@ public class ZWaveConfiguration implements OpenHABConfigurationService, ZWaveEve
 			if (getInclusionMessages() != null) {
 				int count = 0;
 				for (zWaveMessage messageItem : getInclusionMessages()) {
-					message = new OpenHABInclusionMessage(domain, "message" + count, "Inclusion Messages");
-					message.date = messageItem.getDate();
-					message.message = messageItem.getMessage().name();
-					message.messagetype = messageItem.getMessage().message;
-					message.messagevalue = messageItem.getMessage().value;
-					message.state = messageItem.getMessage().messageState;
-					message.nodeid = messageItem.getNodeID();
-					messages.add(message);
+					record = new OpenHABConfigurationRecord(domain, "message" + count, "Inclusion Messages", true);
+					record.date = messageItem.getDate();
+					record.message = messageItem.getMessage().name();
+					record.messagetype = messageItem.getMessage().message;
+					record.messagevalue = messageItem.getMessage().value;
+					record.state = messageItem.getMessage().messageState;
+					record.nodeid = messageItem.getNodeID();
+					records.add(record);
 					count++;
 				}	
 			}
-			return messages;
+			return records;
 		}
 		// Exclusion Messages json record data
 		if (domain.equals("status/ExclusionMessages/")) {
 			if (getExclusionMessages() != null) {
 				int count = 0;
 				for (zWaveMessage messageItem : getExclusionMessages()) {
-					message = new OpenHABInclusionMessage(domain, "message" + count, "Exclusion Messages");
-					message.date = messageItem.getDate();
-					message.message = messageItem.getMessage().name();
-					message.messagetype = messageItem.getMessage().message;
-					message.messagevalue = messageItem.getMessage().value;
-					message.state = messageItem.getMessage().messageState;
-					message.nodeid = messageItem.getNodeID();
-					messages.add(message);
+					record = new OpenHABConfigurationRecord(domain, "message" + count, "Exclusion Messages", true);
+					record.date = messageItem.getDate();
+					record.message = messageItem.getMessage().name();
+					record.messagetype = messageItem.getMessage().message;
+					record.messagevalue = messageItem.getMessage().value;
+					record.state = messageItem.getMessage().messageState;
+					record.nodeid = messageItem.getNodeID();
+					records.add(record);
 					count++;
 				}	
 			}
-			return messages;
+			return records;
 		}
 		if (domain.startsWith("products/")) {
 			ZWaveProductDatabase database = new ZWaveProductDatabase();
@@ -1191,7 +1189,6 @@ public class ZWaveConfiguration implements OpenHABConfigurationService, ZWaveEve
 		Date dateTimeNow = new Date();
 		zWaveInclusionMessageType inclusionMessage = null;
 		zWaveInclusionMessageType exclusionMessage = null;
-		MESSAGESTATE  messageState = null;
 		int nodeID = 0;
 		zWaveMessage msg = new zWaveMessage();
 		
@@ -1425,7 +1422,6 @@ public class ZWaveConfiguration implements OpenHABConfigurationService, ZWaveEve
 	public class zWaveMessage {
 		private Date date;
 		private zWaveInclusionMessageType messageType;
-		private MESSAGESTATE state;
 		private int nodeId;
 
 		public zWaveInclusionMessageType getMessage() {
@@ -1450,20 +1446,20 @@ public class ZWaveConfiguration implements OpenHABConfigurationService, ZWaveEve
 		}
 	}
 	public enum zWaveInclusionMessageType {
-		BeginLow(1, "(Low Power) Begin...",MESSAGESTATE.INITIALIZING), 
-		BeginHigh(2,"(High Power) Begin...",MESSAGESTATE.INITIALIZING), 
-		Listening(3, "Listening for a Node...",MESSAGESTATE.LISTENING), 
-		NodeFound(4,"Found a Node!",MESSAGESTATE.OK), 
-		SlaveFound(5,"Sucessfully found a Slave node",MESSAGESTATE.OK), 
-		ControllerFound(6, "Sucessfully found a Controller node",MESSAGESTATE.OK), 
-		Failed(-1,"Failed!",MESSAGESTATE.ERROR), 
-		Done(9,"Done...",MESSAGESTATE.OK), 
-		End(0,"...End",MESSAGESTATE.OK); 
+		BeginLow(1, "(Low Power) Begin...",STATE.INITIALIZING), 
+		BeginHigh(2,"(High Power) Begin...",STATE.INITIALIZING), 
+		Listening(3, "Listening for a Node...",STATE.LISTENING), 
+		NodeFound(4,"Found a Node!",STATE.OK), 
+		SlaveFound(5,"Sucessfully found a Slave node",STATE.OK), 
+		ControllerFound(6, "Sucessfully found a Controller node",STATE.OK), 
+		Failed(-1,"Failed!",STATE.ERROR), 
+		Done(9,"Done...",STATE.OK), 
+		End(0,"...End",STATE.OK); 
 		
 		private int value = -9;
 		private String message = null;
-		private MESSAGESTATE messageState = null;
-        private zWaveInclusionMessageType(int value, String message, MESSAGESTATE state) {
+		private STATE messageState = null;
+        private zWaveInclusionMessageType(int value, String message, STATE state) {
                 this.value = value;
                 this.message = message;
                 this.messageState = state;

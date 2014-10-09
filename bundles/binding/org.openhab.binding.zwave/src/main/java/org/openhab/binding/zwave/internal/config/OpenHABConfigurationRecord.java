@@ -8,6 +8,7 @@
  */
 package org.openhab.binding.zwave.internal.config;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,6 +32,11 @@ public class OpenHABConfigurationRecord {
 	public String value;
 	public Integer minimum;
 	public Integer maximum;
+	public Date date;
+	public Integer messagevalue;
+	public String message;
+	public String messagetype;
+	public Integer nodeid;
 	public Map<String, String> valuelist;
 	public Map<String, String> actionlist;
 
@@ -39,7 +45,7 @@ public class OpenHABConfigurationRecord {
 	}
 	
 	enum STATE {
-		OK, WARNING, ERROR, INITIALIZING, PENDING
+		OK, WARNING, ERROR, INITIALIZING, PENDING, LISTENING
 	}
 	
 	/**
