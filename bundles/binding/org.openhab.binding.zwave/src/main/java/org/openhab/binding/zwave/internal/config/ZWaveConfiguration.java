@@ -107,7 +107,7 @@ public class ZWaveConfiguration implements OpenHABConfigurationService, ZWaveEve
 		List<OpenHABConfigurationRecord> records = new ArrayList<OpenHABConfigurationRecord>();
 		OpenHABConfigurationRecord record;
 		
-		List<OpenHABInclusionMessage> messages = new ArrayList<OpenHABInclusionMessage>();
+		List<OpenHABConfigurationRecord> messages = new ArrayList<OpenHABConfigurationRecord>();
 		OpenHABInclusionMessage message;
 //		ZWaveNode node;
 
@@ -157,7 +157,7 @@ public class ZWaveConfiguration implements OpenHABConfigurationService, ZWaveEve
 					count++;
 				}	
 			}
-			return records;
+			return messages;
 		}
 		// Exclusion Messages json record data
 		if (domain.equals("status/ExclusionMessages/")) {
@@ -175,7 +175,7 @@ public class ZWaveConfiguration implements OpenHABConfigurationService, ZWaveEve
 					count++;
 				}	
 			}
-			return records;
+			return messages;
 		}
 		if (domain.startsWith("products/")) {
 			ZWaveProductDatabase database = new ZWaveProductDatabase();

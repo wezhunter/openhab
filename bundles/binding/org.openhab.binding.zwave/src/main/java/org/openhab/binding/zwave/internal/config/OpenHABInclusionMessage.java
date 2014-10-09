@@ -19,7 +19,7 @@ import java.util.Date;
  * @since 1.4.0
  * 
  */
-public class OpenHABInclusionMessage {
+public class OpenHABInclusionMessage  extends OpenHABConfigurationRecord {
 	public String domain;
 	public String name;
 	public Date date;
